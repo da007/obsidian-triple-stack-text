@@ -3,8 +3,8 @@
 	"name": "Markdown Triple Stack Text",
 	"version": "1.0.0",
 	"minAppVersion": "0.9.12",
-	"description": "Simple Markdown to Furigana Rendering Plugin for Obsidian.",
-	"author": "Steven Kraft",
-	"authorUrl": "https://github.com/steven-kraft/obsidian-markdown-triple",
+	"description": "Renders text in three vertical levels: {base|top|bottom}. Perfect for transcriptions and translations. Based on the Markdown Furigana plugin.",
+	"author": "Oleinikov Danil",
+	"authorUrl": "https://github.com/da007/obsidian-triple-stack-text",
 	"isDesktopOnly": false
 }
