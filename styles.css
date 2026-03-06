@@ -3,22 +3,22 @@
     flex-direction: column;
     align-items: center;
     vertical-align: middle;
+	line-height: 1.1;
 }
 
 .ts-phrase-content {
     display: flex;
     flex-direction: row;
     align-items: flex-end;
-    gap: 0.3em;
+	gap: 0.3em;
 }
 
 .ts-word-group {
     display: inline-flex;
     flex-direction: column;
     align-items: center;
-    line-height: 1;
 }
 
-.ts-top { font-size: 0.65em; color: var(--text-accent);}
+.ts-top { font-size: 0.75em; color: var(--text-accent); font-style: italic; margin-top: 0.2em;}
 .ts-mid { font-weight: bold;}
-.ts-bot { font-size: 0.75em; color: var(--text-muted); font-style: italic; }
+.ts-bot { font-size: 0.8em; color: var(--text-muted); margin-bottom: 0.2em;}

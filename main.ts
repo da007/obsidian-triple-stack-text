@@ -1,4 +1,4 @@
-import { Plugin, MarkdownPostProcessor, MarkdownPostProcessorContext } from 'obsidian'
+import { Plugin, MarkdownPostProcessor, MarkdownPostProcessorContext, editorLivePreviewField } from 'obsidian'
 import { RangeSetBuilder } from "@codemirror/state"
 import { ViewPlugin, WidgetType, EditorView, ViewUpdate, Decoration, DecorationSet } from '@codemirror/view'
 
@@ -132,6 +132,10 @@ const viewPlugin = ViewPlugin.fromClass(class {
   destroy() { }
 
   buildDecorations(view: EditorView): DecorationSet {
+    const isLivePreview = view.state.field(editorLivePreviewField);
+    if (!isLivePreview) {
+        return Decoration.none; 
+    }
     let builder = new RangeSetBuilder<Decoration>();
     let lines: number[] = [];
     if (view.state.doc.length > 0) {
