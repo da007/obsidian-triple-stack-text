@@ -2,30 +2,48 @@ import { Plugin, MarkdownPostProcessor, MarkdownPostProcessorContext } from 'obs
 import { RangeSetBuilder } from "@codemirror/state"
 import { ViewPlugin, WidgetType, EditorView, ViewUpdate, Decoration, DecorationSet } from '@codemirror/view'
 
-// Regular Expression for {text|text|text} format
-const REGEXP = /\{([^|{}]+)\|([^|{}]+)\|([^|{}]+)\}/gm;
+//Regex
+const COMBINED_REGEXP = /\{\{(?:[^{}]|\{[^{}]*\})+\|[^|{}]+\}\}|\{[^|{}]+\|[^|{}]+\}/g;
+const PHRASE_REGEXP = /\{\{((?:[^{}]|\{[^{}]*\})+)\|([^|{}]+)\}\}/g;
+const WORD_REGEXP = /\{([^|{}]+)\|([^|{}]+)\}/g;
 
 // Main Tags to search for Furigana Syntax
 const TAGS = 'p, h1, h2, h3, h4, h5, h6, ol, ul, table'
 
+const createWordStack = (base: string, top: string): HTMLElement => {
+  const span = document.createElement('span');
+  span.addClass('ts-word-group');
+  span.createSpan({ cls: 'ts-top', text: top });
+  span.createSpan({ cls: 'ts-mid', text: base });
+  return span;
+}
+
+const createPhraseStack = (contentHtml: string, bot: string): HTMLElement => {
+  const container = document.createElement('span');
+  container.addClass('ts-phrase-container');
+  const topRow = container.createSpan({ cls: 'ts-phrase-content' });
+  topRow.innerHTML = contentHtml;
+  container.createSpan({ cls: 'ts-bot', text: bot });
+  return container;
+}
+
 const convertFurigana = (element: Text): Node => {
-  const matches = Array.from(element.textContent.matchAll(REGEXP))
-  let lastNode = element
-  for (const match of matches) {
-    // match[1] = основа, match[2] = верх, match[3] = низ
-    const container = document.createElement('span')
-    container.addClass('ts-container') // Добавим этот класс в CSS позже
+  let text = element.textContent;
 
-    container.createSpan({ cls: 'ts-top', text: match[2] })
-    container.createSpan({ cls: 'ts-mid', text: match[1] })
-    container.createSpan({ cls: 'ts-bot', text: match[3] })
+  let html = text.replace(PHRASE_REGEXP, (_, content, bot) => {
+    const innerWords = content.replace(WORD_REGEXP, (__: any, b: string, t: string) => {
+      return createWordStack(b, t).outerHTML;
+    });
+    return createPhraseStack(innerWords, bot).outerHTML;
+  });
 
-    let offset = lastNode.textContent.indexOf(match[0])
-    const nodeToReplace = lastNode.splitText(offset)
-    lastNode = nodeToReplace.splitText(match[0].length)
-    nodeToReplace.replaceWith(container)
-  }
-  return element
+  html = html.replace(WORD_REGEXP, (_, b, t) => {
+    return createWordStack(b, t).outerHTML;
+  });
+
+  const span = document.createElement('span');
+  span.innerHTML = html;
+  return span;
 }
 
 export default class MarkdownFurigana extends Plugin {
@@ -66,19 +84,31 @@ export default class MarkdownFurigana extends Plugin {
 }
 
 class RubyWidget extends WidgetType {
-  constructor(readonly base: string, readonly top: string, readonly bot: string) {
-    super()
+  constructor(readonly rawText: string) { 
+    super(); 
   }
 
   toDOM(view: EditorView): HTMLElement {
-    const container = document.createElement('span')
-    container.addClass('ts-container')
+    if (this.rawText.startsWith('{{')) {
+      const match = Array.from(this.rawText.matchAll(PHRASE_REGEXP))[0];
+      PHRASE_REGEXP.lastIndex = 0;
 
-    container.createSpan({ cls: 'ts-top', text: this.top })
-    container.createSpan({ cls: 'ts-mid', text: this.base })
-    container.createSpan({ cls: 'ts-bot', text: this.bot })
+      if (match) {
+        const inner = match[1].replace(WORD_REGEXP, (_, b, t) => {
+          return createWordStack(b, t).outerHTML;
+        });
+        return createPhraseStack(inner, match[2]);
+      }
+    } else {
+      const match = Array.from(this.rawText.matchAll(WORD_REGEXP))[0];
+      WORD_REGEXP.lastIndex = 0;
 
-    return container
+      if (match) {
+        return createWordStack(match[1], match[2]);
+      }
+    }
+
+    return document.createElement('span');
   }
 }
 
@@ -126,27 +156,22 @@ const viewPlugin = ViewPlugin.fromClass(class {
           return;
         }
       });
-      let matches = Array.from(line.text.matchAll(REGEXP))
+      let matches = Array.from(line.text.matchAll(COMBINED_REGEXP))
       for (const match of matches) {
         let add = true
-        // Извлекаем 3 части
-        const base = match[1]
-        const top = match[2]
-        const bot = match[3]
-        
         const from = match.index != undefined ? match.index + line.from : -1
         const to = from + match[0].length
         
         currentSelections.forEach((r) => {
           if (r.to >= from && r.from <= to) {
-            add = false // Если курсор внутри, не превращаем в виджет (позволяем редактировать)
+            add = false
           }
         })
         
         if (add) {
           builder.add(from, to, Decoration.widget({ 
-            widget: new RubyWidget(base, top, bot) 
-          }))
+            widget: new RubyWidget(match[0]) 
+          }));
         }
       }
     }

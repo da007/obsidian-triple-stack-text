@@ -1,34 +1,64 @@
 # Triple Stack Text Plugin for Obsidian
 
-A powerful annotation tool for Obsidian that allows you to display text in three vertical layers: **Top** (transcription/IPA), **Center** (base word), and **Bottom** (translation/meaning).
+A specialized annotation tool for Obsidian designed for language learners and linguists. This plugin allows you to display text in three vertical layers: **Transcription** (top), **Base Text** (center), and **Translation** (bottom).
 
-This plugin is built upon the logic of [obsidian-markdown-furigana](https://github.com/steven-kraft/obsidian-markdown-furigana) by Steven Kraft, but modified to support a universal three-tier syntax instead of standard Japanese ruby characters.
+This plugin is a modified version (fork) of [obsidian-markdown-furigana](https://github.com/steven-kraft/obsidian-markdown-furigana) by Steven Kraft, enhanced to support nested phrase-level translations.
 
-### Syntax
+## Syntax
 
-Use a simple curly brace construction with two pipes:
-`{Base|Top|Bottom}`
+The plugin supports two types of annotations:
+
+### 1. Individual Word Stack
+Use single braces for a word and its transcription (top layer only).
+`{Word|Transcription}`
 
 | Markdown | Result |
 | --- | --- |
-| `{Әке|ækʲe|Father}` | Top: `ækʲe`, Center: **Әке**, Bottom: *Father* |
-| `{Book|bʊk|Книга}` | Top: `bʊk`, Center: **Book**, Bottom: *Книга* |
+| `{Әке|ækʲe}` | Top: `ækʲe`, Center: **Әке** |
 
-### Key Features
+### 2. Nested Phrase Stack (Collective Translation)
+Use double braces to wrap multiple words and add a collective translation at the bottom.
+`{{ {Word1|Top1} {Word2|Top2} | Collective Bottom Translation }}`
 
-- **Live Preview Support**: When your cursor enters the text, it expands into the raw source code `{Base|Top|Bottom}` for easy editing. When the cursor leaves, it instantly renders as a beautiful vertical widget.
-- **Reading Mode Support**: Perfectly rendered in the final reading view.
-- **Universal Language Support**: Unlike the original Furigana plugin, this is not restricted to CJK (Chinese/Japanese/Korean) characters. It works with any language (Kazakh, Russian, English, IPA, etc.).
-- **CSS Customization**: Easily adjust font sizes, colors, and spacing by editing the `styles.css` file.
+| Markdown | Result |
+| --- | --- |
+| `{{ {Әке|ækʲe} {және|ʒænʲe} {Ұл|ʊl} | In the name of the Father and the Son }}` | **Top:** IPA over each word <br> **Mid:** The Kazakh phrase <br> **Bottom:** Full English translation centered under the whole group |
 
-### Styling (CSS)
+---
 
-The plugin uses the following CSS classes for easy theme integration:
-- `.ts-container`: The main flexbox wrapper.
-- `.ts-top`: The top layer (defaults to the theme's accent color).
-- `.ts-mid`: The base text (bold by default).
-- `.ts-bot`: The bottom layer (muted and italicized by default).
+## Key Features
 
-### Credits
+- **Nested Logic**: Apply transcriptions to individual words while keeping a single, unified translation for the entire sentence.
+- **Live Preview Support**: When your cursor enters the text, it expands into raw markdown for editing. When the cursor leaves, it renders as a clean vertical stack.
+- **Reading Mode Support**: High-performance rendering for the final document view.
+- **Universal Language Support**: Works with any script (Cyrillic, Latin, Arabic, IPA symbols, etc.). No longer restricted to CJK (Chinese/Japanese/Korean) characters.
+- **Responsive Layout**: Uses Flexbox to ensure that phrase-level translations remain centered under their respective word groups.
 
-This plugin is a modified version (fork) of the [Markdown Triple Stack Text](https://github.com/steven-kraft/obsidian-markdown-furigana) plugin. Heartfelt thanks to Steven Kraft for the original implementation of the CodeMirror 6 logic and Markdown post-processing.
+---
+
+## Custom Styling (CSS)
+
+You can customize the appearance by editing the `styles.css` file in the plugin folder. The plugin uses the following classes:
+
+- `.ts-phrase-container`: The main wrapper for a whole phrase (Flex column).
+- `.ts-phrase-content`: The horizontal row containing the annotated words.
+- `.ts-word-group`: The individual word + transcription stack.
+- `.ts-top`: The transcription text (defaults to theme accent color).
+- `.ts-mid`: The base text (bold).
+- `.ts-bot`: The collective translation (muted and italicized).
+
+---
+
+## Installation
+
+### Manual Installation
+1. Download `main.js`, `manifest.json`, and `styles.css`.
+2. Create a folder: `.obsidian/plugins/obsidian-triple-stack-text/` in your vault.
+3. Move the three files into that folder.
+4. Reload Obsidian and enable the plugin in **Settings > Community Plugins**.
+
+---
+
+## Credits
+
+This project is a fork of the [Markdown Furigana](https://github.com/steven-kraft/obsidian-markdown-furigana) plugin. Special thanks to **Steven Kraft** for the original implementation of the CodeMirror 6 widget logic and Markdown post-processing.
