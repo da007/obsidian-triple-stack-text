@@ -1,0 +1,10 @@
+{
+	"id": "obsidian-markdown-triple",
+	"name": "Markdown Triple Stack Text",
+	"version": "1.0.0",
+	"minAppVersion": "0.9.12",
+	"description": "Simple Markdown to Furigana Rendering Plugin for Obsidian.",
+	"author": "Steven Kraft",
+	"authorUrl": "https://github.com/steven-kraft/obsidian-markdown-triple",
+	"isDesktopOnly": false
+}
